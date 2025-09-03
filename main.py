@@ -22,24 +22,38 @@ def main():
     You might know the answer without running any code, but you should still run the code to get the answer.
     If it does not seem like you can write code to answer the question, just return "I don't know" as the answer.
         """
-    base_prompt = hub.pull("langchain-ai/react-agent-template")
-    prompt = base_prompt.partial(instructions=instructions)
+    base_prompt = hub.pull("langchain-ai/react-agent-template")  # v
+    prompt = base_prompt.partial(instructions=instructions)  # v
 
-    tools = [PythonREPLTool()]
+    tools = [PythonREPLTool()]  # Env tool for executing python code
     python_agent = create_react_agent(
         prompt=prompt,
-        llm=ChatOpenAI(temperature=0, model="gpt-4o-mini"),
+        llm=ChatOpenAI(temperature=0, model="gpt-4.1-mini"),
         tools=tools,
     )
 
     python_agent_executor = AgentExecutor(agent=python_agent, tools=tools, verbose=True)
 
+    # print(
+    #     python_agent_executor.invoke(
+    #         {
+    #             "input": "Generate and save in current working directory 15 qrcodes that point to `www.udemy.com/course/langchain`",
+    #         }
+    #     )
+    # )
+
     csv_agent_executor: AgentExecutor = create_csv_agent(
-        llm=ChatOpenAI(temperature=0, model="gpt-4o-mini"),
+        llm=ChatOpenAI(temperature=0, model="gpt-4.1-mini"),
         path="episode_info.csv",
         verbose=True,
         allow_dangerous_code=True,
     )
+
+    # csv_agent_executor.invoke(
+    #     {
+    #         "input": "Calculate the time span between seasons",
+    #     }
+    # )
 
     ################################ Router Grand Agent ########################################################
 
@@ -65,7 +79,7 @@ def main():
     prompt = base_prompt.partial(instructions="")
     grand_agent = create_react_agent(
         prompt=prompt,
-        llm=ChatOpenAI(temperature=0, model="gpt-4o-mini"),
+        llm=ChatOpenAI(temperature=0, model="gpt-4.1-mini"),
         tools=tools,
     )
     grand_agent_executor = AgentExecutor(agent=grand_agent, tools=tools, verbose=True)
@@ -73,18 +87,18 @@ def main():
     print(
         grand_agent_executor.invoke(
             {
-                "input": "which season has the most episodes?",
+                "input": "Create a summary report of the show's production statistics",
             }
         )
     )
 
-    print(
-        grand_agent_executor.invoke(
-            {
-                "input": "Generate and save in current working directory 15 qrcodes that point to `www.udemy.com/course/langchain`",
-            }
-        )
-    )
+    # print(
+    #     grand_agent_executor.invoke(
+    #         {
+    #             "input": "Generate and save in current working directory 15 qrcodes that point to `www.udemy.com/course/langchain`",
+    #         }
+    #     )
+    # )
 
 
 if __name__ == "__main__":
